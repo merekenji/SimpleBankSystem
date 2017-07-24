@@ -29,7 +29,7 @@ public class Service implements IService {
 		return accRepo.withdraw(accID, amt);
 	}
 
-	public Account transfer(int senderID, int receiverID, double amt) throws InvalidAccountException {
+	public Account transfer(int senderID, int receiverID, double amt) throws InvalidAccountException, NegativeAmountException {
 		return accRepo.transfer(senderID, receiverID, amt);
 	}
 
@@ -37,12 +37,12 @@ public class Service implements IService {
 		return accRepo.showBalance(accID);
 	}
 
-	public Account showLastTenTransactions(Account acc) throws InvalidAccountException {
-		return accRepo.showLastTenTransactions(acc);
+	public Account showLastTenTransactions(int accID) throws InvalidAccountException {
+		return accRepo.showLastTenTransactions(accID);
 	}
 
-	public Account showTransactionsInRange(Account acc, Date startDate, Date endDate) throws InvalidAccountException {
-		return accRepo.showTransactionsInRange(acc, startDate, endDate);
+	public Account showTransactionsInRange(int accID, Date startDate, Date endDate) throws InvalidAccountException {
+		return accRepo.showTransactionsInRange(accID, startDate, endDate);
 	}
 
 }

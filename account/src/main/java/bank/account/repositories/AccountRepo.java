@@ -13,15 +13,20 @@ import bank.account.exception.InvalidAccountException;
 
 public class AccountRepo implements IAccountRepo {
 	
+	private static final String INSUFFICIENT_BALANCE = "Error - Insufficient Bank Balance";
+	private static final String INVALID_ACCOUNT = "Error - Invalid Account";
+	private static final String WITHDRAWAL_LIMIT = "Error - Exceed Withdrawal Limit";
+	private static final String NEGATIVE_AMOUNT = "Error - Amount Is Negative";
+			
 	private List<Account> accounts;
 	
 	public AccountRepo() {
-		accounts = new ArrayList<Account>();
+		accounts = new ArrayList<>();
 	}
 
 	public Account addAccount(double balance) throws InsufficientBalanceException {
 		if(balance < 100.0) {
-			throw new InsufficientBalanceException("Error - Insufficient bank balance", balance);
+			throw new InsufficientBalanceException(INSUFFICIENT_BALANCE, balance);
 		}
 		
 		Account acc = new Account(balance);
@@ -38,7 +43,7 @@ public class AccountRepo implements IAccountRepo {
 			account.setBalance(account.getBalance() + amt);
 			account.addTransaction(new Transaction("Deposit", amt, account.getBalance(), new Date()));
 		} else {
-			throw new InvalidAccountException("Error - Invalid Account ID");
+			throw new InvalidAccountException(INVALID_ACCOUNT);
 		}
 		return account;
 	}
@@ -49,41 +54,62 @@ public class AccountRepo implements IAccountRepo {
 		Account account = findOne(accID);
 		if(account != null) {
 			if(account.getBalance() - amt < 100) {
-				throw new InsufficientBalanceException("Error - Insufficient Bank Balance", account.getBalance() - amt);
+				throw new InsufficientBalanceException(INSUFFICIENT_BALANCE, account.getBalance() - amt);
 			} else {
 				checkWithdrawalLimit(account, amt);
 				account.setBalance(account.getBalance() - amt);
 				account.addTransaction(new Transaction("Withdrawal", amt, account.getBalance(), new Date()));
 			}
 		} else {
-			throw new InvalidAccountException("Error - Invalid Account ID");
+			throw new InvalidAccountException(INVALID_ACCOUNT);
 		}
 		return account;
 	}
 
-	public Account transfer(int senderID, int receiverID, double amt) throws InvalidAccountException {
+	public Account transfer(int senderID, int receiverID, double amt) throws InvalidAccountException, NegativeAmountException {
+		checkNegativeAmount(amt);
+		
+		Account sender = findOne(senderID);
+		Account receiver = findOne(receiverID);
+		if(sender == null || receiver == null) {
+			throw new InvalidAccountException(INVALID_ACCOUNT);
+		}
+		
 		return null;
 	}
 
 	public Account showBalance(int accID) throws InvalidAccountException {
 		Account acc = findOne(accID);
 		if(acc == null) {
-			throw new InvalidAccountException("Error - Invalid Account ID");
+			throw new InvalidAccountException(INVALID_ACCOUNT);
 		}
 		return acc;
 	}
 
-	public Account showLastTenTransactions(Account acc) throws InvalidAccountException {
-		return null;
+	public Account showLastTenTransactions(int accID) throws InvalidAccountException {
+		Account acc = findOne(accID);
+		if(acc == null) {
+			throw new InvalidAccountException(INVALID_ACCOUNT);
+		}
+		if(acc.getTransactions().size() <= 10) {
+			return new Account(acc.getTransactions());
+		} else {
+			List<Transaction> transactions = acc.getTransactions().subList(acc.getTransactions().size()-10, acc.getTransactions().size()-1);
+			return new Account(transactions);
+		}
 	}
 
-	public Account showTransactionsInRange(Account acc, Date startDate, Date endDate) throws InvalidAccountException {
+	public Account showTransactionsInRange(int accID, Date startDate, Date endDate) throws InvalidAccountException {
+		Account acc = findOne(accID);
+		if(acc == null) {
+			throw new InvalidAccountException(INVALID_ACCOUNT);
+		}
 		return null;
 	}
 	
 	private void checkNegativeAmount(double amt) throws NegativeAmountException {
 		if(amt <= 0.0) {
-			throw new NegativeAmountException("Error - Amount is negative", amt);
+			throw new NegativeAmountException(NEGATIVE_AMOUNT, amt);
 		}
 	}
 	
@@ -91,12 +117,12 @@ public class AccountRepo implements IAccountRepo {
 		double total = amt;
 		Date date = new Date();
 		for(Transaction transaction : acc.getTransactions()) {
-			if(transaction.getDescription().equals("Withdrawal") && date.equals(transaction.getDate())) {
+			if("Withdrawal".equals(transaction.getDescription()) && date.equals(transaction.getDate())) {
 				total += transaction.getAmount();
 			}
 		}
 		if(total > 1000) {
-			throw new ExceedWithdrawalLimitException("Error - Withdrawal limit exceeded", total);
+			throw new ExceedWithdrawalLimitException(WITHDRAWAL_LIMIT, total);
 		}
 	}
 	

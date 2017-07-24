@@ -14,11 +14,11 @@ public class Account {
 	public Account(double balance) {
 		accountID = IDGenerator.generateAccountID();
 		this.balance = balance;
-		transactions = new ArrayList<Transaction>();
+		transactions = new ArrayList<>();
 	}
 	
-	public Account(int accountID) {
-		this.accountID = accountID;
+	public Account(List<Transaction> transactions) {
+		this.transactions = transactions;
 	}
 	
 	public int getAccountID() {
