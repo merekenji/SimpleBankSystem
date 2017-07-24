@@ -100,7 +100,7 @@ public class AccountRepo implements IAccountRepo {
 		if(acc.getTransactions().size() <= 10) {
 			return new Account(acc.getTransactions());
 		} else {
-			List<Transaction> transactions = acc.getTransactions().subList(acc.getTransactions().size()-10, acc.getTransactions().size()-1);
+			List<Transaction> transactions = acc.getTransactions().subList(acc.getTransactions().size()-11, acc.getTransactions().size()-1);
 			return new Account(transactions);
 		}
 	}

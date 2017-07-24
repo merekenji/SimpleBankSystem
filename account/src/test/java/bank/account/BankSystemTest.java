@@ -12,7 +12,7 @@ public class BankSystemTest {
 	@Test
 	public void createAccountSuccessfully() throws InsufficientBalanceException {
 		IService service = new Service();
-		assertEquals(10002, service.createAccount(500.0).getAccountID());
+		assertEquals(500.0, service.createAccount(500.0).getBalance(), 0);
 	}
 	
 	@Test (expected = InsufficientBalanceException.class)
@@ -103,5 +103,28 @@ public class BankSystemTest {
 	public void showBalanceOfNonExistantAccount() throws InsufficientBalanceException, InvalidAccountException {
 		IService service = new Service();
 		assertEquals(500.0, service.showBalance(100).getBalance(), 0);
+	}
+	
+	@Test
+	public void showLast10Transactions() throws InsufficientBalanceException, InvalidAccountException, NegativeAmountException, ExceedWithdrawalLimitException {
+		IService service = new Service();
+		Account acc = service.createAccount(1000.0);
+		acc = service.deposit(acc.getAccountID(), 500.0);
+		acc = service.withdraw(acc.getAccountID(), 200.0);
+		acc = service.deposit(acc.getAccountID(), 300.0);
+		acc = service.withdraw(acc.getAccountID(), 150.0);
+		acc = service.deposit(acc.getAccountID(), 180.0);
+		acc = service.deposit(acc.getAccountID(), 175.0);
+		acc = service.deposit(acc.getAccountID(), 195.0);
+		acc = service.withdraw(acc.getAccountID(), 180.0);
+		acc = service.withdraw(acc.getAccountID(), 200.0);
+		acc = service.deposit(acc.getAccountID(), 500.0);
+		assertEquals(10, service.showLastTenTransactions(acc.getAccountID()).getTransactions().size());
+	}
+	
+	@Test (expected = InvalidAccountException.class)
+	public void showLast10TransactionsFromNonExistantAccount() throws InvalidAccountException {
+		IService service = new Service();
+		assertEquals(10, service.showLastTenTransactions(100).getTransactions().size());
 	}
 }
