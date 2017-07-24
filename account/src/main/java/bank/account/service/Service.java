@@ -1,9 +1,11 @@
 package bank.account.service;
 
+import java.text.ParseException;
 import java.util.Date;
 
 import bank.account.beans.Account;
 import bank.account.exception.ExceedWithdrawalLimitException;
+import bank.account.exception.IncorrectDateRangeException;
 import bank.account.exception.InsufficientBalanceException;
 import bank.account.exception.NegativeAmountException;
 import bank.account.exception.InvalidAccountException;
@@ -25,7 +27,7 @@ public class Service implements IService {
 		return accRepo.deposit(accID, amt);
 	}
 
-	public Account withdraw(int accID, double amt) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException, ExceedWithdrawalLimitException {
+	public Account withdraw(int accID, double amt) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException, ExceedWithdrawalLimitException, ParseException {
 		return accRepo.withdraw(accID, amt);
 	}
 
@@ -41,7 +43,7 @@ public class Service implements IService {
 		return accRepo.showLastTenTransactions(accID);
 	}
 
-	public Account showTransactionsInRange(int accID, Date startDate, Date endDate) throws InvalidAccountException {
+	public Account showTransactionsInRange(int accID, Date startDate, Date endDate) throws InvalidAccountException, IncorrectDateRangeException {
 		return accRepo.showTransactionsInRange(accID, startDate, endDate);
 	}
 

@@ -1,5 +1,7 @@
 package bank.account.repositories;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.List;
 import bank.account.beans.Account;
 import bank.account.beans.Transaction;
 import bank.account.exception.ExceedWithdrawalLimitException;
+import bank.account.exception.IncorrectDateRangeException;
 import bank.account.exception.InsufficientBalanceException;
 import bank.account.exception.NegativeAmountException;
 import bank.account.exception.InvalidAccountException;
@@ -48,7 +51,7 @@ public class AccountRepo implements IAccountRepo {
 		return account;
 	}
 
-	public Account withdraw(int accID, double amt) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException, ExceedWithdrawalLimitException {
+	public Account withdraw(int accID, double amt) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException, ExceedWithdrawalLimitException, ParseException {
 		checkNegativeAmount(amt);
 		
 		Account account = findOne(accID);
@@ -105,12 +108,21 @@ public class AccountRepo implements IAccountRepo {
 		}
 	}
 
-	public Account showTransactionsInRange(int accID, Date startDate, Date endDate) throws InvalidAccountException {
+	public Account showTransactionsInRange(int accID, Date startDate, Date endDate) throws InvalidAccountException, IncorrectDateRangeException {
 		Account acc = findOne(accID);
 		if(acc == null) {
 			throw new InvalidAccountException(INVALID_ACCOUNT);
 		}
-		return null;
+		if(endDate.before(startDate)) {
+			throw new IncorrectDateRangeException("");
+		}
+		List<Transaction> transactions = new ArrayList<>();
+		for(Transaction transaction : acc.getTransactions()) {
+			if(startDate.compareTo(transaction.getDate())* transaction.getDate().compareTo(endDate) >= 0) {
+				transactions.add(transaction);
+			}
+		}
+		return new Account(transactions);
 	}
 	
 	private void checkNegativeAmount(double amt) throws NegativeAmountException {
@@ -119,11 +131,18 @@ public class AccountRepo implements IAccountRepo {
 		}
 	}
 	
-	private void checkWithdrawalLimit(Account acc, double amt) throws ExceedWithdrawalLimitException {
+	private void checkWithdrawalLimit(Account acc, double amt) throws ExceedWithdrawalLimitException, ParseException {
 		double total = amt;
 		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String dateString = sdf.format(date);
+		String startDateString = dateString + " 00:00:00.0";
+		String endDateString = dateString + " 23:59:59.0";
+		Date startDate = sdf.parse(startDateString);
+		Date endDate = sdf.parse(endDateString);
+		
 		for(Transaction transaction : acc.getTransactions()) {
-			if("Withdrawal".equals(transaction.getDescription()) && date.equals(transaction.getDate())) {
+			if("Withdrawal".equals(transaction.getDescription()) && transaction.getDate().equals(date)) {
 				total += transaction.getAmount();
 			}
 		}
