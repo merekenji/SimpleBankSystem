@@ -63,6 +63,36 @@ public class BankSystemTest {
 	}
 	
 	@Test
+	public void transferMoneySuccessfully() throws InsufficientBalanceException, InvalidAccountException, NegativeAmountException {
+		IService service = new Service();
+		Account sender = service.createAccount(1000.0);
+		Account receiver = service.createAccount(500.0);
+		assertEquals(700.0, service.transfer(sender.getAccountID(), receiver.getAccountID(), 300.0).getBalance(), 0);
+	}
+	
+	@Test (expected = InvalidAccountException.class)
+	public void transferMoneyFromNonExistantAccount() throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException {
+		IService service = new Service();
+		Account receiver = service.createAccount(500.0);
+		assertEquals(700.0, service.transfer(100, receiver.getAccountID(), 300.0).getBalance(), 0);
+	}
+	
+	@Test (expected = InvalidAccountException.class)
+	public void transferMoneyToNonExistantAccount() throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException {
+		IService service = new Service();
+		Account sender = service.createAccount(1000.0);
+		assertEquals(700.0, service.transfer(sender.getAccountID(), 100, 300.0).getBalance(), 0);
+	}
+	
+	@Test (expected = NegativeAmountException.class)
+	public void transferNegativeAmountOfMoney() throws InsufficientBalanceException, InvalidAccountException, NegativeAmountException {
+		IService service = new Service();
+		Account sender = service.createAccount(1000.0);
+		Account receiver = service.createAccount(500.0);
+		assertEquals(700.0, service.transfer(sender.getAccountID(), receiver.getAccountID(), -200.0).getBalance(), 0);
+	}
+	
+	@Test
 	public void showBalance() throws InsufficientBalanceException, InvalidAccountException {
 		IService service = new Service();
 		Account acc = service.createAccount(500.0);

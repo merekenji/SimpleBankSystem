@@ -66,7 +66,7 @@ public class AccountRepo implements IAccountRepo {
 		return account;
 	}
 
-	public Account transfer(int senderID, int receiverID, double amt) throws InvalidAccountException, NegativeAmountException {
+	public Account transfer(int senderID, int receiverID, double amt) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException {
 		checkNegativeAmount(amt);
 		
 		Account sender = findOne(senderID);
@@ -74,8 +74,14 @@ public class AccountRepo implements IAccountRepo {
 		if(sender == null || receiver == null) {
 			throw new InvalidAccountException(INVALID_ACCOUNT);
 		}
-		
-		return null;
+		if(sender.getBalance() - amt < 100) {
+			throw new InsufficientBalanceException(INSUFFICIENT_BALANCE, sender.getBalance() - amt);
+		}
+		sender.setBalance(sender.getBalance() - amt);
+		sender.addTransaction(new Transaction("Transferred to " + receiver.getAccountID(), amt, sender.getBalance(), new Date()));
+		receiver.setBalance(receiver.getBalance() + amt);
+		receiver.addTransaction(new Transaction("Transferred from " + sender.getAccountID(), amt, receiver.getBalance(), new Date()));
+		return sender;
 	}
 
 	public Account showBalance(int accID) throws InvalidAccountException {

@@ -29,7 +29,7 @@ public class Service implements IService {
 		return accRepo.withdraw(accID, amt);
 	}
 
-	public Account transfer(int senderID, int receiverID, double amt) throws InvalidAccountException, NegativeAmountException {
+	public Account transfer(int senderID, int receiverID, double amt) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException {
 		return accRepo.transfer(senderID, receiverID, amt);
 	}
 
