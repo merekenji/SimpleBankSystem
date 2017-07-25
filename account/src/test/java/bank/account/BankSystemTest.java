@@ -101,40 +101,56 @@ public class BankSystemTest {
 	}
 	
 	@Test (expected = ExceedWithdrawalLimitException.class)
-	public void withdrawMoneyThatExceedWithdrawalLimit() throws InsufficientBalanceException, InvalidAccountException, NegativeAmountException, ExceedWithdrawalLimitException, ParseException {
+	public void withdrawMoneyThatExceedWithdrawalLimit() throws ExceedWithdrawalLimitException {
 		try {
 			Account acc = service.createAccount(new Customer(KENJI), 2000.0);
 			acc = service.withdraw(acc.getAccountID(), 800.0);
 			assertEquals(900.0, service.withdraw(acc.getAccountID(), 300.0));
 		} catch(InsufficientBalanceException | InvalidAccountException | NegativeAmountException | ParseException e) {
-			logger.log(Level.WARNING, e.getMessage());
+			logger.log(Level.FINEST, e.getMessage(), e);
 		}
 	}
 	
 	@Test
 	public void transferMoneySuccessfully() throws InsufficientBalanceException, InvalidAccountException, NegativeAmountException {
-		Account sender = service.createAccount(new Customer(KENJI), 1000.0);
-		Account receiver = service.createAccount(new Customer("Jerry"), 500.0);
-		assertEquals(700.0, service.transfer(sender.getAccountID(), receiver.getAccountID(), 300.0).getBalance(), 0);
+		try {
+			Account sender = service.createAccount(new Customer(KENJI), 1000.0);
+			Account receiver = service.createAccount(new Customer("Jerry"), 500.0);
+			assertEquals(700.0, service.transfer(sender.getAccountID(), receiver.getAccountID(), 300.0).getBalance(), 0);
+		} catch(InsufficientBalanceException | InvalidAccountException | NegativeAmountException e) {
+			logger.log(Level.FINEST, e.getMessage(), e);
+		}
 	}
 	
 	@Test (expected = InvalidAccountException.class)
-	public void transferMoneyFromNonExistantAccount() throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException {
-		Account receiver = service.createAccount(new Customer(KENJI), 500.0);
-		assertEquals(700.0, service.transfer(100, receiver.getAccountID(), 300.0).getBalance(), 0);
+	public void transferMoneyFromNonExistantAccount() throws InvalidAccountException {
+		try {
+			Account receiver = service.createAccount(new Customer(KENJI), 500.0);
+			assertEquals(700.0, service.transfer(100, receiver.getAccountID(), 300.0).getBalance(), 0);
+		} catch(NegativeAmountException | InsufficientBalanceException e) {
+			logger.log(Level.FINEST, e.getMessage(), e);
+		}
 	}
 	
 	@Test (expected = InvalidAccountException.class)
-	public void transferMoneyToNonExistantAccount() throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException {
-		Account sender = service.createAccount(new Customer(KENJI), 1000.0);
-		assertEquals(700.0, service.transfer(sender.getAccountID(), 100, 300.0).getBalance(), 0);
+	public void transferMoneyToNonExistantAccount() throws InvalidAccountException {
+		try {
+			Account sender = service.createAccount(new Customer(KENJI), 1000.0);
+			assertEquals(700.0, service.transfer(sender.getAccountID(), 100, 300.0).getBalance(), 0);
+		} catch(NegativeAmountException | InsufficientBalanceException e) {
+			logger.log(Level.FINEST, e.getMessage(), e);
+		}
 	}
 	
 	@Test (expected = NegativeAmountException.class)
-	public void transferNegativeAmountOfMoney() throws InsufficientBalanceException, InvalidAccountException, NegativeAmountException {
-		Account sender = service.createAccount(new Customer(KENJI), 1000.0);
-		Account receiver = service.createAccount(new Customer("Jerry"), 500.0);
-		assertEquals(700.0, service.transfer(sender.getAccountID(), receiver.getAccountID(), -200.0).getBalance(), 0);
+	public void transferNegativeAmountOfMoney() throws NegativeAmountException {
+		try {
+			Account sender = service.createAccount(new Customer(KENJI), 1000.0);
+			Account receiver = service.createAccount(new Customer("Jerry"), 500.0);
+			assertEquals(700.0, service.transfer(sender.getAccountID(), receiver.getAccountID(), -200.0).getBalance(), 0);
+		} catch(InsufficientBalanceException | InvalidAccountException e) {
+			logger.log(Level.FINEST, e.getMessage(), e);
+		}
 	}
 	
 	@Test
@@ -162,20 +178,32 @@ public class BankSystemTest {
 	
 	@Test
 	public void showTransactionsWithinDateRange() throws InsufficientBalanceException, InvalidAccountException, NegativeAmountException, ExceedWithdrawalLimitException, IncorrectDateRangeException, ParseException {
-		Account acc = service.createAccount(new Customer(KENJI), 1000.0);
-		initTransactions(acc);
-		assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), "20170601", "20170625").getTransactions().size());
+		try {
+			Account acc = service.createAccount(new Customer(KENJI), 1000.0);
+			initTransactions(acc);
+			assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), "20170601", "20170625").getTransactions().size());
+		} catch(InsufficientBalanceException | InvalidAccountException | NegativeAmountException | ExceedWithdrawalLimitException | IncorrectDateRangeException | ParseException e) {
+			logger.log(Level.FINEST, e.getMessage(), e);
+		}
 	}
 	
 	@Test (expected = InvalidAccountException.class)
-	public void showTransactionsWithinDateRangeOfNonExistentAccount() throws InvalidAccountException, IncorrectDateRangeException {
-		assertEquals(11, service.showTransactionsInRange(100, "20170601", "20170625").getTransactions().size());
+	public void showTransactionsWithinDateRangeOfNonExistentAccount() throws InvalidAccountException {
+		try {
+			assertEquals(11, service.showTransactionsInRange(100, "20170601", "20170625").getTransactions().size());
+		} catch(IncorrectDateRangeException e) {
+			logger.log(Level.FINEST, e.getMessage(), e);
+		}
 	}
 	
 	@Test (expected = IncorrectDateRangeException.class)
-	public void showTransactionsWithinWrongDateRange() throws InvalidAccountException, IncorrectDateRangeException, InsufficientBalanceException {
-		Account acc = service.createAccount(new Customer(KENJI), 1000.0);
-		assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), "20170630", "20170601").getTransactions().size());
+	public void showTransactionsWithinWrongDateRange() throws IncorrectDateRangeException {
+		try {
+			Account acc = service.createAccount(new Customer(KENJI), 1000.0);
+			assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), "20170630", "20170601").getTransactions().size());
+		} catch(InvalidAccountException | InsufficientBalanceException e) {
+			logger.log(Level.FINEST, e.getMessage(), e);
+		}
 	}
 	
 }
