@@ -3,6 +3,7 @@ package bank.account.service;
 import java.text.ParseException;
 
 import bank.account.beans.Account;
+import bank.account.beans.Customer;
 import bank.account.exception.ExceedWithdrawalLimitException;
 import bank.account.exception.IncorrectDateRangeException;
 import bank.account.exception.InsufficientBalanceException;
@@ -11,8 +12,8 @@ import bank.account.exception.InvalidAccountException;
 
 public interface IService {
 	
-	Account createAccount(double balance) throws InsufficientBalanceException;
-	Account deposit(int accID, double amt) throws InvalidAccountException, NegativeAmountException;
+	Account createAccount(Customer customer, double balance) throws InsufficientBalanceException;
+	Account deposit(int accID, double amt) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException;
 	Account withdraw(int accID, double amt) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException, ExceedWithdrawalLimitException, ParseException;
 	Account transfer(int senderID, int receiverID, double amt) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException;
 	Account showBalance(int accID) throws InvalidAccountException;

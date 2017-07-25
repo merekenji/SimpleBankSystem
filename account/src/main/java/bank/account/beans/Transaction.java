@@ -19,24 +19,20 @@ public class Transaction {
 		this.balance = balance;
 		this.date = date;
 	}
-	
 	public int getTransactionID() {
 		return transactionID;
 	}
-	
 	public String getDescription() {
 		return description;
 	}
-	
 	public double getAmount() {
 		return amount;
 	}
-	
 	public double getBalance() {
 		return balance;
 	}
-	
 	public Date getDate() {
 		return date;
 	}
+	
 }
