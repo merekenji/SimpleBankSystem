@@ -1,7 +1,6 @@
 package bank.account.repositories;
 
 import java.text.ParseException;
-import java.util.Date;
 
 import bank.account.beans.Account;
 import bank.account.exception.ExceedWithdrawalLimitException;
