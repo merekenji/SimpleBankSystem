@@ -58,16 +58,16 @@ public class BankSystemTest {
 			Account acc = service.createAccount(new Customer(KENJI), 500.0);
 			assertEquals(700.0, service.deposit(acc.getAccountID(), 200.0).getBalance(), 0);
 		} catch(InvalidAccountException | InsufficientBalanceException | NegativeAmountException e) {
-			logger.log(Level.WARNING, e.getMessage());
+			logger.log(Level.FINEST, e.getMessage(), e);
 		}
 	}
 	
 	@Test (expected = InvalidAccountException.class)
-	public void depositMoneyIntoNonExistantAccount() throws InvalidAccountException, InsufficientBalanceException {
+	public void depositMoneyIntoNonExistantAccount() throws InvalidAccountException {
 		try {
 			assertEquals(700.0, service.deposit(100, 200.0).getBalance(), 0);
-		} catch(NegativeAmountException e) {
-			logger.log(Level.WARNING, e.getMessage());
+		} catch(NegativeAmountException | InsufficientBalanceException e) {
+			logger.log(Level.FINEST, e.getMessage(), e);
 		}
 	}
 	
@@ -77,7 +77,7 @@ public class BankSystemTest {
 			Account acc = service.createAccount(new Customer(KENJI), 500.0);
 			assertEquals(300.0, service.deposit(acc.getAccountID(), -200.0).getBalance(), 0);
 		} catch(InvalidAccountException | InsufficientBalanceException e) {
-			logger.log(Level.WARNING, e.getMessage());
+			logger.log(Level.FINEST, e.getMessage(), e);
 		}
 	}
 	
@@ -87,16 +87,16 @@ public class BankSystemTest {
 			Account acc = service.createAccount(new Customer(KENJI), 500.0);
 			assertEquals(300.0, service.withdraw(acc.getAccountID(), 200.0).getBalance(), 0);
 		} catch(InvalidAccountException | InsufficientBalanceException | NegativeAmountException | ExceedWithdrawalLimitException | ParseException e) {
-			logger.log(Level.WARNING, e.getMessage());
+			logger.log(Level.FINEST, e.getMessage(), e);
 		}
 	}
 	
 	@Test (expected = InvalidAccountException.class)
-	public void withdrawMoneyFromNonExistantAccount() throws InvalidAccountException, InsufficientBalanceException, NegativeAmountException, ExceedWithdrawalLimitException, ParseException {
+	public void withdrawMoneyFromNonExistantAccount() throws InvalidAccountException {
 		try {
 			assertEquals(300.0, service.withdraw(100, 200.0).getBalance(), 0);
 		} catch(InsufficientBalanceException | NegativeAmountException | ExceedWithdrawalLimitException | ParseException e) {
-			logger.log(Level.WARNING, e.getMessage());
+			logger.log(Level.FINEST, e.getMessage(), e);
 		}
 	}
 	
