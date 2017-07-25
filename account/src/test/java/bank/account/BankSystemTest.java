@@ -17,6 +17,8 @@ import bank.account.service.*;
 public class BankSystemTest {
 	
 	private static final String KENJI = "Kenji";
+	private static final String STARTDATE = "20170601";
+	private static final String ENDDATE = "20170630";
 	private Logger logger = Logger.getLogger("ExceptionMessages");
 	private IService service;
 
@@ -25,17 +27,21 @@ public class BankSystemTest {
 		service = new Service();
 	}
 	
-	private void initTransactions(Account acc) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException, ExceedWithdrawalLimitException, ParseException {
-		service.deposit(acc.getAccountID(), 500.0);
-		service.withdraw(acc.getAccountID(), 200.0);
-		service.deposit(acc.getAccountID(), 300.0);
-		service.withdraw(acc.getAccountID(), 150.0);
-		service.deposit(acc.getAccountID(), 180.0);
-		service.deposit(acc.getAccountID(), 175.0);
-		service.deposit(acc.getAccountID(), 195.0);
-		service.withdraw(acc.getAccountID(), 180.0);
-		service.withdraw(acc.getAccountID(), 200.0);
-		service.deposit(acc.getAccountID(), 500.0);
+	private void initTransactions(Account acc) {
+		try {
+			service.deposit(acc.getAccountID(), 500.0);
+			service.withdraw(acc.getAccountID(), 200.0);
+			service.deposit(acc.getAccountID(), 300.0);
+			service.withdraw(acc.getAccountID(), 150.0);
+			service.deposit(acc.getAccountID(), 180.0);
+			service.deposit(acc.getAccountID(), 175.0);
+			service.deposit(acc.getAccountID(), 195.0);
+			service.withdraw(acc.getAccountID(), 180.0);
+			service.withdraw(acc.getAccountID(), 200.0);
+			service.deposit(acc.getAccountID(), 500.0);
+		} catch(InvalidAccountException | NegativeAmountException | InsufficientBalanceException | ExceedWithdrawalLimitException | ParseException e) {
+			logger.log(Level.FINEST, e.getMessage(), e);
+		}
 	}
 	
 	@Test
@@ -181,8 +187,8 @@ public class BankSystemTest {
 		try {
 			Account acc = service.createAccount(new Customer(KENJI), 1000.0);
 			initTransactions(acc);
-			assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), "20170601", "20170625").getTransactions().size());
-		} catch(InsufficientBalanceException | InvalidAccountException | NegativeAmountException | ExceedWithdrawalLimitException | IncorrectDateRangeException | ParseException e) {
+			assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), STARTDATE, ENDDATE).getTransactions().size());
+		} catch(InsufficientBalanceException | InvalidAccountException | IncorrectDateRangeException e) {
 			logger.log(Level.FINEST, e.getMessage(), e);
 		}
 	}
@@ -190,7 +196,7 @@ public class BankSystemTest {
 	@Test (expected = InvalidAccountException.class)
 	public void showTransactionsWithinDateRangeOfNonExistentAccount() throws InvalidAccountException {
 		try {
-			assertEquals(11, service.showTransactionsInRange(100, "20170601", "20170625").getTransactions().size());
+			assertEquals(11, service.showTransactionsInRange(100, STARTDATE, ENDDATE).getTransactions().size());
 		} catch(IncorrectDateRangeException e) {
 			logger.log(Level.FINEST, e.getMessage(), e);
 		}
@@ -200,7 +206,7 @@ public class BankSystemTest {
 	public void showTransactionsWithinWrongDateRange() throws IncorrectDateRangeException {
 		try {
 			Account acc = service.createAccount(new Customer(KENJI), 1000.0);
-			assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), "20170630", "20170601").getTransactions().size());
+			assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), ENDDATE, STARTDATE).getTransactions().size());
 		} catch(InvalidAccountException | InsufficientBalanceException e) {
 			logger.log(Level.FINEST, e.getMessage(), e);
 		}
