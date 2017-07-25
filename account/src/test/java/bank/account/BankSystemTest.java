@@ -3,6 +3,8 @@ package bank.account;
 import static org.junit.Assert.*;
 
 import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.junit.Test;
 
@@ -11,6 +13,7 @@ import bank.account.exception.*;
 import bank.account.service.*;
 
 public class BankSystemTest {
+	Logger logger = Logger.getLogger("ExceptionMessages");
 
 	@Test
 	public void createAccountSuccessfully() {
@@ -18,7 +21,7 @@ public class BankSystemTest {
 		try {
 			assertEquals(10004, service.createAccount(500.0).getAccountID(), 0);
 		} catch(InsufficientBalanceException e) {
-			System.out.println(e.getMessage());
+			logger.log(Level.WARNING, e.getMessage());
 		}
 	}
 	
@@ -34,26 +37,30 @@ public class BankSystemTest {
 		try {
 			Account acc = service.createAccount(500.0);
 			assertEquals(700.0, service.deposit(acc.getAccountID(), 200.0).getBalance(), 0);
-		} catch(InvalidAccountException e) {
-			e.getMessage();
-		} catch(InsufficientBalanceException e) {
-			e.getMessage();
-		} catch(NegativeAmountException e) {
-			e.getMessage();
+		} catch(InvalidAccountException | InsufficientBalanceException | NegativeAmountException e) {
+			logger.log(Level.WARNING, e.getMessage());
 		}
 	}
 	
 	@Test (expected = InvalidAccountException.class)
-	public void depositMoneyIntoNonExistantAccount() throws InvalidAccountException, InsufficientBalanceException, NegativeAmountException {
+	public void depositMoneyIntoNonExistantAccount() throws InvalidAccountException, NegativeAmountException {
 		IService service = new Service();
-		assertEquals(700.0, service.deposit(100, 200.0).getBalance(), 0);
+		try {
+			assertEquals(700.0, service.deposit(100, 200.0).getBalance(), 0);
+		} catch(NegativeAmountException e) {
+			logger.log(Level.WARNING, e.getMessage());
+		}
 	}
 	
 	@Test (expected = NegativeAmountException.class)
 	public void depositNegativeAmountOfMoney() throws InvalidAccountException, InsufficientBalanceException, NegativeAmountException {
 		IService service = new Service();
-		Account acc = service.createAccount(500.0);
-		assertEquals(300.0, service.deposit(acc.getAccountID(), -200.0).getBalance(), 0);
+		try {
+			Account acc = service.createAccount(500.0);
+			assertEquals(300.0, service.deposit(acc.getAccountID(), -200.0).getBalance(), 0);
+		} catch(InvalidAccountException | InsufficientBalanceException e) {
+			logger.log(Level.WARNING, e.getMessage());
+		}
 	}
 	
 	@Test
