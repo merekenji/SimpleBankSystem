@@ -16,7 +16,7 @@ public class BankSystemTest {
 	Logger logger = Logger.getLogger("ExceptionMessages");
 
 	@Test
-	public void createAccountSuccessfully() throws InsufficientBalanceException {
+	public void createAccountSuccessfully() {
 		IService service = new Service();
 		try {
 			assertEquals(10004, service.createAccount(500.0).getAccountID(), 0);
@@ -32,7 +32,7 @@ public class BankSystemTest {
 	}
 	
 	@Test
-	public void depositMoneySuccessfully() throws InvalidAccountException, InsufficientBalanceException, NegativeAmountException {
+	public void depositMoneySuccessfully() {
 		IService service = new Service();
 		try {
 			Account acc = service.createAccount(500.0);
@@ -43,7 +43,7 @@ public class BankSystemTest {
 	}
 	
 	@Test (expected = InvalidAccountException.class)
-	public void depositMoneyIntoNonExistantAccount() throws InvalidAccountException, NegativeAmountException {
+	public void depositMoneyIntoNonExistantAccount() throws InvalidAccountException {
 		IService service = new Service();
 		try {
 			assertEquals(700.0, service.deposit(100, 200.0).getBalance(), 0);
@@ -53,7 +53,7 @@ public class BankSystemTest {
 	}
 	
 	@Test (expected = NegativeAmountException.class)
-	public void depositNegativeAmountOfMoney() throws InvalidAccountException, InsufficientBalanceException, NegativeAmountException {
+	public void depositNegativeAmountOfMoney() throws NegativeAmountException {
 		IService service = new Service();
 		try {
 			Account acc = service.createAccount(500.0);
@@ -64,7 +64,7 @@ public class BankSystemTest {
 	}
 	
 	@Test
-	public void withdrawMoneySuccessfully() throws InvalidAccountException, InsufficientBalanceException, NegativeAmountException, ExceedWithdrawalLimitException, ParseException {
+	public void withdrawMoneySuccessfully() {
 		IService service = new Service();
 		try {
 			Account acc = service.createAccount(500.0);
