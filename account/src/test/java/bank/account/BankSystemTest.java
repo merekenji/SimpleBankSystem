@@ -43,7 +43,7 @@ public class BankSystemTest {
 		try {
 			assertEquals(10004, service.createAccount(new Customer(KENJI), 500.0).getAccountID(), 0);
 		} catch(InsufficientBalanceException e) {
-			logger.log(Level.WARNING, e.getMessage());
+			logger.log(Level.FINEST, e.getMessage(), e);;
 		}
 	}
 	
