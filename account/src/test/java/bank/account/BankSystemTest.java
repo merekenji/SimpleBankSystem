@@ -16,7 +16,7 @@ public class BankSystemTest {
 	Logger logger = Logger.getLogger("ExceptionMessages");
 
 	@Test
-	public void createAccountSuccessfully() {
+	public void createAccountSuccessfully() throws InsufficientBalanceException {
 		IService service = new Service();
 		try {
 			assertEquals(10004, service.createAccount(500.0).getAccountID(), 0);
@@ -66,22 +66,34 @@ public class BankSystemTest {
 	@Test
 	public void withdrawMoneySuccessfully() throws InvalidAccountException, InsufficientBalanceException, NegativeAmountException, ExceedWithdrawalLimitException, ParseException {
 		IService service = new Service();
-		Account acc = service.createAccount(500.0);
-		assertEquals(300.0, service.withdraw(acc.getAccountID(), 200.0).getBalance(), 0);
+		try {
+			Account acc = service.createAccount(500.0);
+			assertEquals(300.0, service.withdraw(acc.getAccountID(), 200.0).getBalance(), 0);
+		} catch(InvalidAccountException | InsufficientBalanceException | NegativeAmountException | ExceedWithdrawalLimitException | ParseException e) {
+			logger.log(Level.WARNING, e.getMessage());
+		}
 	}
 	
 	@Test (expected = InvalidAccountException.class)
 	public void withdrawMoneyFromNonExistantAccount() throws InvalidAccountException, InsufficientBalanceException, NegativeAmountException, ExceedWithdrawalLimitException, ParseException {
 		IService service = new Service();
-		assertEquals(300.0, service.withdraw(100, 200.0).getBalance(), 0);
+		try {
+			assertEquals(300.0, service.withdraw(100, 200.0).getBalance(), 0);
+		} catch(InsufficientBalanceException | NegativeAmountException | ExceedWithdrawalLimitException | ParseException e) {
+			logger.log(Level.WARNING, e.getMessage());
+		}
 	}
 	
 	@Test (expected = ExceedWithdrawalLimitException.class)
 	public void withdrawMoneyThatExceedWithdrawalLimit() throws InsufficientBalanceException, InvalidAccountException, NegativeAmountException, ExceedWithdrawalLimitException, ParseException {
 		IService service = new Service();
-		Account acc = service.createAccount(2000.0);
-		acc = service.withdraw(acc.getAccountID(), 800.0);
-		assertEquals(900.0, service.withdraw(acc.getAccountID(), 300.0));
+		try {
+			Account acc = service.createAccount(2000.0);
+			acc = service.withdraw(acc.getAccountID(), 800.0);
+			assertEquals(900.0, service.withdraw(acc.getAccountID(), 300.0));
+		} catch(InsufficientBalanceException | InvalidAccountException | NegativeAmountException | ParseException e) {
+			logger.log(Level.WARNING, e.getMessage());
+		}
 	}
 	
 	@Test
