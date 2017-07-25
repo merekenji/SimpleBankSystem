@@ -3,8 +3,6 @@ package bank.account;
 import static org.junit.Assert.*;
 
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
 
 import org.junit.Test;
 
@@ -18,7 +16,7 @@ public class BankSystemTest {
 	public void createAccountSuccessfully() {
 		IService service = new Service();
 		try {
-			assertEquals(10003, service.createAccount(500.0).getAccountID(), 0);
+			assertEquals(10004, service.createAccount(500.0).getAccountID(), 0);
 		} catch(InsufficientBalanceException e) {
 			System.out.println(e.getMessage());
 		}
@@ -148,9 +146,6 @@ public class BankSystemTest {
 	@Test
 	public void showTransactionsWithinDateRange() throws InsufficientBalanceException, InvalidAccountException, NegativeAmountException, ExceedWithdrawalLimitException, IncorrectDateRangeException, ParseException {
 		IService service = new Service();
-		Calendar c = Calendar.getInstance();
-		Date startDate = c.getTime();
-		Date endDate = new Date();
 		Account acc = service.createAccount(1000.0);
 		acc = service.deposit(acc.getAccountID(), 500.0);
 		acc = service.withdraw(acc.getAccountID(), 200.0);
@@ -162,23 +157,20 @@ public class BankSystemTest {
 		acc = service.withdraw(acc.getAccountID(), 180.0);
 		acc = service.withdraw(acc.getAccountID(), 200.0);
 		acc = service.deposit(acc.getAccountID(), 500.0);
-		assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), startDate, endDate).getTransactions().size());
+		assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), "20170601", "20170625").getTransactions().size());
 	}
 	
 	@Test (expected = InvalidAccountException.class)
 	public void showTransactionsWithinDateRangeOfNonExistentAccount() throws InvalidAccountException, IncorrectDateRangeException {
 		IService service = new Service();
-		Calendar c = Calendar.getInstance();
-		Date startDate = c.getTime();
-		Date endDate = new Date();
-		assertEquals(11, service.showTransactionsInRange(100, startDate, endDate).getTransactions().size());
+		assertEquals(11, service.showTransactionsInRange(100, "20170601", "20170625").getTransactions().size());
 	}
 	
-//	@Test (expected = IncorrectDateRangeException.class)
-//	public void showTransactionsWithinWrongDateRange() {
-//		IService service = new Service();
-//		Calendar c = Calendar.getInstance();
-//		
-//	}
+	@Test (expected = IncorrectDateRangeException.class)
+	public void showTransactionsWithinWrongDateRange() throws InvalidAccountException, IncorrectDateRangeException, InsufficientBalanceException {
+		IService service = new Service();
+		Account acc = service.createAccount(1000.0);
+		assertEquals(11, service.showTransactionsInRange(acc.getAccountID(), "20170630", "20170601").getTransactions().size());
+	}
 	
 }

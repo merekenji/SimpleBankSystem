@@ -18,6 +18,6 @@ public interface IAccountRepo {
 	Account transfer(int senderID, int receiverID, double amt) throws InvalidAccountException, NegativeAmountException, InsufficientBalanceException;
 	Account showBalance(int accID) throws InvalidAccountException;
 	Account showLastTenTransactions(int accID) throws InvalidAccountException;
-	Account showTransactionsInRange(int accID, Date startDate, Date endDate) throws InvalidAccountException, IncorrectDateRangeException;
+	Account showTransactionsInRange(int accID, String startDate, String endDate) throws InvalidAccountException, IncorrectDateRangeException;
 	
 }

@@ -43,7 +43,7 @@ public class Service implements IService {
 		return accRepo.showLastTenTransactions(accID);
 	}
 
-	public Account showTransactionsInRange(int accID, Date startDate, Date endDate) throws InvalidAccountException, IncorrectDateRangeException {
+	public Account showTransactionsInRange(int accID, String startDate, String endDate) throws InvalidAccountException, IncorrectDateRangeException {
 		return accRepo.showTransactionsInRange(accID, startDate, endDate);
 	}
 

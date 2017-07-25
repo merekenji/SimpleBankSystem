@@ -3,6 +3,7 @@ package bank.account.repositories;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class AccountRepo implements IAccountRepo {
 	private static final String INVALID_ACCOUNT = "Error - Invalid Account";
 	private static final String WITHDRAWAL_LIMIT = "Error - Exceed Withdrawal Limit";
 	private static final String NEGATIVE_AMOUNT = "Error - Amount Is Negative";
+	private static final String INCORRECT_DATERANGE = "Error - Incorrect Date Range";
 			
 	private List<Account> accounts;
 	
@@ -108,17 +110,35 @@ public class AccountRepo implements IAccountRepo {
 		}
 	}
 
-	public Account showTransactionsInRange(int accID, Date startDate, Date endDate) throws InvalidAccountException, IncorrectDateRangeException {
+	public Account showTransactionsInRange(int accID, String startDate, String endDate) throws InvalidAccountException, IncorrectDateRangeException {
 		Account acc = findOne(accID);
 		if(acc == null) {
 			throw new InvalidAccountException(INVALID_ACCOUNT);
 		}
-		if(endDate.before(startDate)) {
-			throw new IncorrectDateRangeException("");
+		Calendar cal = Calendar.getInstance();
+		String startYear = startDate.substring(0, 4);
+		String startMonth = startDate.substring(4, 6);
+		String startDay = startDate.substring(6, 8);
+		cal.set(Integer.parseInt(startYear), Integer.parseInt(startMonth), Integer.parseInt(startDay));
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		Date sDate = cal.getTime();
+		String endYear = endDate.substring(0, 4);
+		String endMonth = endDate.substring(4, 6);
+		String endDay = endDate.substring(6, 8);
+		cal.set(Integer.parseInt(endYear), Integer.parseInt(endMonth), Integer.parseInt(endDay));
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 59);
+		Date eDate = cal.getTime();
+		
+		if(eDate.compareTo(sDate) < 0 || sDate.compareTo(new Date()) > 0) {
+			throw new IncorrectDateRangeException(INCORRECT_DATERANGE);
 		}
 		List<Transaction> transactions = new ArrayList<>();
 		for(Transaction transaction : acc.getTransactions()) {
-			if(startDate.compareTo(transaction.getDate())* transaction.getDate().compareTo(endDate) >= 0) {
+			if(transaction.getDate().compareTo(sDate) > 0 && transaction.getDate().compareTo(eDate) < 0) {
 				transactions.add(transaction);
 			}
 		}
@@ -133,16 +153,19 @@ public class AccountRepo implements IAccountRepo {
 	
 	private void checkWithdrawalLimit(Account acc, double amt) throws ExceedWithdrawalLimitException, ParseException {
 		double total = amt;
-		Date date = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String dateString = sdf.format(date);
-		String startDateString = dateString + " 00:00:00.0";
-		String endDateString = dateString + " 23:59:59.0";
-		Date startDate = sdf.parse(startDateString);
-		Date endDate = sdf.parse(endDateString);
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		Date startDate = cal.getTime();
+		
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 59);
+		Date endDate = cal.getTime();
 		
 		for(Transaction transaction : acc.getTransactions()) {
-			if("Withdrawal".equals(transaction.getDescription()) && transaction.getDate().equals(date)) {
+			if("Withdrawal".equals(transaction.getDescription()) && transaction.getDate().compareTo(startDate) > 0 && transaction.getDate().compareTo(endDate) < 0) {
 				total += transaction.getAmount();
 			}
 		}
